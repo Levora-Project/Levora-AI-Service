@@ -1,0 +1,109 @@
+generator client {
+  provider             = "prisma-client-py"
+  recursive_type_depth = 5
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Source {
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name              String    @unique @db.Text
+  display_name      String    @db.Text
+  base_url          String    @db.Text
+  api_endpoint      String    @db.Text
+  method            String    @default("wordpress_api") @db.Text
+  pagination_config Json      @default("{}")
+  field_mapping     Json      @default("{}")
+  is_active         Boolean   @default(true)
+  scrape_frequency  String?   @default("daily")
+  last_scraped_at   DateTime?
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+
+  raw_opportunities RawOpportunity[]
+  opportunities     CleanedOpportunity[]
+
+  @@map("sources")
+}
+
+model RawOpportunity {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  source_id     String   @map("source_id") @db.Uuid
+  source        Source   @relation(fields: [source_id], references: [id])
+  raw_payload   Json     @default("{}")
+  source_url    String   @db.Text
+  scraped_at    DateTime @default(now())
+  status        String   @default("pending")
+  error_message String?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  cleaned_opportunity CleanedOpportunity?
+
+  @@map("raw_opportunities")
+}
+
+model CleanedOpportunity {
+  id                 String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  raw_opportunity_id String?         @unique @map("raw_opportunity_id") @db.Uuid
+  raw_opportunity    RawOpportunity? @relation(fields: [raw_opportunity_id], references: [id])
+  source_id String @map("source_id") @db.Uuid
+  source    Source @relation(fields: [source_id], references: [id])
+
+  title            String    @db.Text
+  organization     String?   @db.Text
+  opportunity_type String?   @db.Text
+  description      String?   @db.Text
+  eligibility      Json      @default("{}")
+  location         String?   @db.Text
+  is_remote        Boolean   @default(false)
+  funding_type     String?   @db.Text
+  deadline         DateTime?
+  application_url  String?   @db.Text
+  source_url       String    @db.Text
+  country          String?   @db.Text
+  study_levels     String[]  @default([])
+  fields_of_study  String[]  @default([])
+
+  status        String  @default("pending")
+  error_message String?
+  content_hash  String? @db.Text
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  match_scores MatchScore[]
+
+  @@map("cleaned_opportunities")
+}
+
+model MatchScore {
+  id                  String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id             String             @db.Uuid
+  opportunity_id      String             @map("opportunity_id") @db.Uuid
+  opportunity         CleanedOpportunity @relation(fields: [opportunity_id], references: [id])
+  score_pct           Int
+  score_breakdown     Json               @default("{}")
+  calculation_version Int                @default(1)
+  calculated_at       DateTime           @default(now())
+  created_at          DateTime           @default(now())
+  updated_at          DateTime           @updatedAt
+
+  @@unique([user_id, opportunity_id])
+  @@map("match_scores")
+}
+
+model ApiKey {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  key          String    @unique @db.Text
+  name         String    @db.Text
+  is_active    Boolean   @default(true)
+  last_used_at DateTime?
+  expires_at   DateTime?
+  created_at   DateTime  @default(now())
+
+  @@map("api_keys")
+}
