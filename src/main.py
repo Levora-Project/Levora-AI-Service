@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from src.api.routes.v1 import health
+from src.api.routes.v1 import health, scrape
 from src.modules.core.config.settings import get_settings
 from src.modules.core.database.prisma_client import connect, disconnect
 
@@ -29,3 +29,4 @@ app = FastAPI(
 )
 
 app.include_router(health.router)
+app.include_router(scrape.router)
