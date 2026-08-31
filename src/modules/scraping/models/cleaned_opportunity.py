@@ -77,4 +77,4 @@ class CleanedOpportunityDTO(BaseModel):
         """
         if value is None:
             return value
-        return value.lower().strip()
+        return " ".join(value.lower().split())
