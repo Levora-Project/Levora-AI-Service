@@ -1,10 +1,8 @@
-
 import asyncio
 import secrets
 import sys
 
 from prisma import Prisma
-
 from src.modules.core.auth.api_key_auth import hash_key
 
 

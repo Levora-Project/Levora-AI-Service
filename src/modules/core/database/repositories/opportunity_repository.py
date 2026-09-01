@@ -17,15 +17,17 @@ class OpportunityRepository:
         source_id: str,
         raw_payload: dict[str, Any],
         status: str = "pending",
+        source_url: str | None = None,
     ) -> Any:
         """يخزّن فرصة خام كما وردت من المصدر."""
-        return await self._db.rawopportunity.create(
-            data={
-                "source_id": source_id,
-                "raw_payload": Json(raw_payload),
-                "status": status,
-            }
-        )
+        data: dict[str, Any] = {
+            "source_id": source_id,
+            "raw_payload": Json(raw_payload),
+            "status": status,
+        }
+        if source_url is not None:
+            data["source_url"] = source_url
+        return await self._db.rawopportunity.create(data=data)  # type: ignore[arg-type]
 
     async def create_many_raw(
         self, source_id: str, payloads: list[dict[str, Any]]
@@ -55,7 +57,7 @@ class OpportunityRepository:
         if "eligibility" in payload and payload["eligibility"] is not None:
             payload["eligibility"] = Json(payload["eligibility"])
 
-        return await self._db.cleanedopportunity.create(data=payload)
+        return await self._db.cleanedopportunity.create(data=payload)  # type: ignore[arg-type]
 
     async def exists_by_content_hash(self, content_hash: str) -> bool:
         """يفحص وجود فرصة نظيفة بنفس البصمة (لمنع التكرار)."""

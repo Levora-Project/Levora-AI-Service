@@ -17,7 +17,7 @@ dependencies = [
 ]
 
 [tool.poetry]
-packages = [{include = "levora_ai_service", from = "src"}]
+package-mode = false
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

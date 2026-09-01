@@ -12,7 +12,7 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    database_url: str
+    database_url: str = ""
     environment: str = "development"
     log_level: str = "INFO"
 

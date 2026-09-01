@@ -13,11 +13,13 @@ model Source {
   name         String   @unique @db.Text
   display_name String   @db.Text
   base_url     String   @db.Text
-  api_endpoint Json     @default("{}")
+  api_endpoint String   @default("") @db.Text
   method       String   @default("wordpress_api") @db.Text
 
-  pagination_config Json @default("{}")
-  field_mapping     Json @default("{}")
+  pagination_config Json    @default("{}")
+  field_mapping     Json    @default("{}")
+  is_active         Boolean @default(true)
+  scrape_frequency  String? @default("daily")
 
   last_scraped_at DateTime?
   created_at      DateTime  @default(now())
@@ -30,10 +32,11 @@ model Source {
 }
 
 model RawOpportunity {
-  id          String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  source_id   String @map("source_id") @db.Uuid
-  source      Source @relation(fields: [source_id], references: [id])
-  raw_payload Json   @default("{}")
+  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  source_id   String  @map("source_id") @db.Uuid
+  source      Source  @relation(fields: [source_id], references: [id])
+  raw_payload Json    @default("{}")
+  source_url  String? @db.Text
 
   scraped_at    DateTime @default(now())
   status        String   @default("pending")
