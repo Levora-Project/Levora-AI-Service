@@ -1,20 +1,10 @@
-/*
-  Warnings:
-
-  - You are about to drop the column `source_url` on the `raw_opportunities` table. All the data in the column will be lost.
-  - You are about to drop the column `is_active` on the `sources` table. All the data in the column will be lost.
-  - You are about to drop the column `scrape_frequency` on the `sources` table. All the data in the column will be lost.
-  - The `api_endpoint` column on the `sources` table would be dropped and recreated. This will lead to data loss if there is data in the column.
-  - Made the column `raw_opportunity_id` on table `cleaned_opportunities` required. This step will fail if there are existing NULL values in that column.
-
-*/
 -- DropForeignKey
-ALTER TABLE "cleaned_opportunities" DROP CONSTRAINT "cleaned_opportunities_raw_opportunity_id_fkey";
+ALTER TABLE "cleaned_opportunities" DROP CONSTRAINT IF EXISTS "cleaned_opportunities_raw_opportunity_id_fkey";
 
 -- DropForeignKey
-ALTER TABLE "cleaned_opportunities" DROP CONSTRAINT "cleaned_opportunities_source_id_fkey";
+ALTER TABLE "cleaned_opportunities" DROP CONSTRAINT IF EXISTS "cleaned_opportunities_source_id_fkey";
 
--- AlterTable
+-- AlterTable cleaned_opportunities
 ALTER TABLE "cleaned_opportunities" ALTER COLUMN "raw_opportunity_id" SET NOT NULL,
 ALTER COLUMN "source_id" DROP NOT NULL,
 ALTER COLUMN "eligibility" DROP NOT NULL,
@@ -24,14 +14,13 @@ ALTER COLUMN "is_remote" DROP DEFAULT,
 ALTER COLUMN "status" DROP NOT NULL,
 ALTER COLUMN "status" DROP DEFAULT;
 
--- AlterTable
-ALTER TABLE "raw_opportunities" DROP COLUMN "source_url";
+-- AlterTable raw_opportunities (make source_url nullable according to schema)
+ALTER TABLE "raw_opportunities" ALTER COLUMN "source_url" DROP NOT NULL;
 
--- AlterTable
-ALTER TABLE "sources" DROP COLUMN "is_active",
-DROP COLUMN "scrape_frequency",
-DROP COLUMN "api_endpoint",
-ADD COLUMN     "api_endpoint" JSONB NOT NULL DEFAULT '{}';
+-- AlterTable sources (ensure defaults and correct text types)
+ALTER TABLE "sources" ALTER COLUMN "api_endpoint" SET DEFAULT '',
+ALTER COLUMN "is_active" SET DEFAULT true,
+ALTER COLUMN "scrape_frequency" SET DEFAULT 'daily';
 
 -- AddForeignKey
 ALTER TABLE "cleaned_opportunities" ADD CONSTRAINT "cleaned_opportunities_raw_opportunity_id_fkey" FOREIGN KEY ("raw_opportunity_id") REFERENCES "raw_opportunities"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

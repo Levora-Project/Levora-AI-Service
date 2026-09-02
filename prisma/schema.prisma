@@ -74,7 +74,7 @@ model CleanedOpportunity {
 
   status        String? @db.Text
   error_message String?
-  content_hash  String? @db.Text
+  content_hash  String? @unique @db.Text
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
