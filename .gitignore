@@ -63,3 +63,4 @@ htmlcov/
 *.sqlite3
 
 .agent/
+Python_Service/
