@@ -54,3 +54,8 @@ ignore = ["E501"]
 target-version = ["py312"]
 line-length = 88
 
+[[tool.mypy.overrides]]
+module = ["dateparser", "bs4"]
+ignore_missing_imports = true
+
+

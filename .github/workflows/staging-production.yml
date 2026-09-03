@@ -50,6 +50,10 @@ jobs:
       - name: Check Code Formatting (Black)
         run: poetry run black --check src tests
 
+      - name: Generate Prisma Client for Linting
+        run: poetry run prisma generate
+        continue-on-error: true
+
       - name: Run Mypy
         run: poetry run mypy src
 
