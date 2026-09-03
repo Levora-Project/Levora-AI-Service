@@ -216,7 +216,11 @@ class ScraperService:
                             "Duplicate opportunity detected: '%s'",
                             normalized.get("title"),
                         )
-                        if self._opportunity_repo and raw_id and raw_id != "mock-raw-id":
+                        if (
+                            self._opportunity_repo
+                            and raw_id
+                            and raw_id != "mock-raw-id"
+                        ):
                             await self._opportunity_repo.mark_raw_status(
                                 raw_id, status="duplicate"
                             )
