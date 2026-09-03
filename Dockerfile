@@ -11,6 +11,11 @@ WORKDIR /app
 COPY --from=builder /tmp/requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
+# Copy Prisma schema and generate the client
+COPY ./prisma /app/prisma
+RUN prisma generate
+
+# Copy application source code
 COPY ./src /app/src
 
 # Expose port and run the app
